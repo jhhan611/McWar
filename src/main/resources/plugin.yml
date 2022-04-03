@@ -1,0 +1,5 @@
+name: MachangWars
+version: 1.0.0
+main: com.github.jhhan611.ability.Plugin
+depend: [CommandAPI]
+api-version: 1.17
