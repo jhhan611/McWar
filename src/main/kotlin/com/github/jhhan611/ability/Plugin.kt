@@ -4,10 +4,12 @@ import com.github.jhhan611.ability.MachangWars.getAbilities
 import dev.jorel.commandapi.CommandAPICommand
 import dev.jorel.commandapi.CommandPermission
 import dev.jorel.commandapi.arguments.Argument
+import dev.jorel.commandapi.arguments.FloatArgument
 import dev.jorel.commandapi.arguments.PlayerArgument
 import dev.jorel.commandapi.arguments.StringArgument
 import dev.jorel.commandapi.executors.PlayerCommandExecutor
 import org.bukkit.ChatColor
+import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
 import java.util.ArrayList
@@ -75,7 +77,7 @@ class Plugin : JavaPlugin() {
                     return@PlayerCommandExecutor
                 }
 
-                player.sendMessage("${ChatColor.GREEN}${target.name}'s abilities: ${player.getAbilities().joinToString { it.name }}")
+                player.sendMessage("${ChatColor.GREEN}${target.name}'s abilities: ${target.getAbilities().joinToString { it.name }}")
             })
             .register()
 

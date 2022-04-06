@@ -8,22 +8,23 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
 import org.bukkit.event.entity.PlayerDeathEvent
+import org.bukkit.event.player.PlayerDropItemEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerQuitEvent
-import org.bukkit.inventory.ItemStack
 
 //TODO: rank별 확률 적용
 
 object MachangWars {
     val playerAbility = mutableMapOf<Player, MutableList<AbilityType>>()
 
-    enum class AbilityType(val abilityName: String, val rank : Char, val abilityObject : Ability) {
+    enum class AbilityType(val abilityName: String, val rank: Char, val abilityObject: Ability) {
+        PUNGSUNG("풍성", 'L', PungSung),
         MATAN("마탄의 사수", 'S', Matan),
         AMOGUS("아모구스", 'S', Amogus),
+        LUCKYGAME("운빨망겜", 'S', LuckyGame),
         ROMANCE("낭만", 'A', Romance),
         COMBO("콤보", 'A', Combo),
-        LUCKYGAME("운빨망겜", 'S', LuckyGame),
-        PUNGSUNG("풍성", 'L', PungSung)
+        CIGAR("시가", 'C', Cigar)
     }
 
     fun loadAbilities(plugin: Plugin) { // 모든 능력들의 메소드 loadAbility() 발동
@@ -70,47 +71,21 @@ object MachangWars {
         }
     }
 
-    fun Player.getAbilities() : MutableList<AbilityType> { // 플레이어의 능력들 반환, 능력이 없으면 빈 리스트
+    fun Player.getAbilities(): MutableList<AbilityType> { // 플레이어의 능력들 반환, 능력이 없으면 빈 리스트
         playerAbility[this] ?: return mutableListOf()
         return playerAbility[this]!!
     }
 
-    open class Ability : Listener {
-        lateinit var abilityType: AbilityType
-
-        fun Player.hasAbility() : Boolean { // 플레이어가 오브젝트에 해당하는 능력이 있는기? ex) Matan에서 이 함수를 실행시키면 플레이어가 AbilityType.MATAN을 갖고 있는지 반환함
-            if((playerAbility[this] ?: return false).contains(abilityType)) return true
-            return false
-       }
-
-        fun loadAbility(type: AbilityType) {
-            abilityType = type
-            plugin!!.server.pluginManager.registerEvents(type.abilityObject, plugin!!)
-            onLoad()
-        }
-
-        open fun onLoad() {} // 플러그인 로드에 할 것들
-
-        open fun onAdd(player: Player) {} // 플레이어가 능력을 얻었을 때 할 것들
-        open fun onDelete(player: Player) {} // 플레이어가 능력을 삭제당했을 때 할 것들
-
-        open fun onRightClick(item: ItemStack?, e: PlayerInteractEvent) { // 플레이어 우클릭 시 할 것들
-            if (item == null) return
-            if (item.type == Material.IRON_INGOT) trigger1(e.player)
-        }
-
-        open fun onLeftClick(item: ItemStack?, e: PlayerInteractEvent) { // 플레이어 좌클릭 시 할 것들
-            if (item == null) return
-            if (item.type == Material.IRON_INGOT) trigger2(e.player)
-        }
-
-        open fun trigger1(player: Player) {} // 철 우클릭 함수
-        open fun trigger2(player: Player) {} // 철 좌클릭 함수
-    }
-
     class MainListener : Listener {
+        private val drop = mutableSetOf<Player>()
+
         @EventHandler
         fun onInteraction(e: PlayerInteractEvent) {
+            if (drop.remove(e.player)) {
+                e.player.sendMessage("blocked")
+                return
+            }
+
             val abilities = playerAbility[e.player] ?: return
 
             if (e.action == Action.RIGHT_CLICK_BLOCK || e.action == Action.RIGHT_CLICK_AIR)
@@ -125,40 +100,52 @@ object MachangWars {
         }
 
         @EventHandler
+        fun onThrow(e: PlayerDropItemEvent) {
+            drop.add(e.player)
+            plugin?.let {
+                Bukkit.getScheduler().scheduleSyncDelayedTask(it) {
+                    drop.remove(e.player)
+                }
+            }
+        }
+
+        @EventHandler
         fun onDeath(e: PlayerDeathEvent) {
             Bukkit.getServer().onlinePlayers.forEach { p ->
-                p.sendMessage("${ChatColor.GOLD}${e.player.name}${ChatColor.YELLOW}의 능력은 ${ChatColor.GOLD}${e.player.getAbilities().joinToString { it.name }}${ChatColor.YELLOW}이었습니다.")
+                p.sendMessage(
+                    "${ChatColor.GOLD}${e.player.name}${ChatColor.YELLOW}의 능력은 ${ChatColor.GOLD}${
+                        e.player.getAbilities().joinToString { it.name }
+                    }${ChatColor.YELLOW}이었습니다."
+                )
             }
         }
 
         @EventHandler
         fun onDisconnect(e: PlayerQuitEvent) {
-            e.player.getAbilities().forEach {
-                playerAbility[e.player]?.remove(it)
-                it.abilityObject.onDelete(e.player)
-            }
+            e.player.getAbilities().forEach { it.abilityObject.onDelete(e.player) }
+            playerAbility[e.player]?.clear() //@Jhun wil this work?  preventing ConcurrentException
         }
     }
 
-    fun Player.meleeDamage(damage: Double) {
+    fun Player.meleeDamage(damage: Double, damager: Player? = null) {
         var epf = (this.inventory.helmet?.enchantments?.get(Enchantment.PROTECTION_ENVIRONMENTAL) ?: 0) +
                 (this.inventory.chestplate?.enchantments?.get(Enchantment.PROTECTION_ENVIRONMENTAL) ?: 0) +
                 (this.inventory.leggings?.enchantments?.get(Enchantment.PROTECTION_ENVIRONMENTAL) ?: 0) +
                 (this.inventory.boots?.enchantments?.get(Enchantment.PROTECTION_ENVIRONMENTAL) ?: 0)
         if (epf > 20) epf = 20
-        this.damage(damage*(1-epf.toDouble()/25))
+        this.damage(damage * (1 - epf.toDouble() / 25), damager)
     }
 
-    fun Player.projectileDamage(damage: Double) {
+    fun Player.projectileDamage(damage: Double, damager: Player? = null) {
         var epf = (this.inventory.helmet?.enchantments?.get(Enchantment.PROTECTION_ENVIRONMENTAL) ?: 0) +
                 (this.inventory.chestplate?.enchantments?.get(Enchantment.PROTECTION_ENVIRONMENTAL) ?: 0) +
                 (this.inventory.leggings?.enchantments?.get(Enchantment.PROTECTION_ENVIRONMENTAL) ?: 0) +
                 (this.inventory.boots?.enchantments?.get(Enchantment.PROTECTION_ENVIRONMENTAL) ?: 0) +
-                (this.inventory.helmet?.enchantments?.get(Enchantment.PROTECTION_PROJECTILE) ?: 0)*2 +
-                (this.inventory.chestplate?.enchantments?.get(Enchantment.PROTECTION_PROJECTILE) ?: 0)*2 +
-                (this.inventory.leggings?.enchantments?.get(Enchantment.PROTECTION_PROJECTILE) ?: 0)*2 +
-                (this.inventory.boots?.enchantments?.get(Enchantment.PROTECTION_PROJECTILE) ?: 0)*2
+                (this.inventory.helmet?.enchantments?.get(Enchantment.PROTECTION_PROJECTILE) ?: 0) * 2 +
+                (this.inventory.chestplate?.enchantments?.get(Enchantment.PROTECTION_PROJECTILE) ?: 0) * 2 +
+                (this.inventory.leggings?.enchantments?.get(Enchantment.PROTECTION_PROJECTILE) ?: 0) * 2 +
+                (this.inventory.boots?.enchantments?.get(Enchantment.PROTECTION_PROJECTILE) ?: 0) * 2
         if (epf > 20) epf = 20
-        this.damage(damage*(1-epf.toDouble()/25))
+        this.damage(damage * (1 - epf.toDouble() / 25), damager)
     }
 }

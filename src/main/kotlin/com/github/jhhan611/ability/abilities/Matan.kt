@@ -1,15 +1,17 @@
 package com.github.jhhan611.ability.abilities
 
-import com.github.jhhan611.ability.MachangWars
+import com.github.jhhan611.ability.Ability
 import com.github.jhhan611.ability.MachangWars.projectileDamage
 import com.github.jhhan611.ability.plugin
-import net.kyori.adventure.sound.Sound
+import com.github.jhhan611.ability.projectileDamage
+import com.github.jhhan611.ability.simulateProjectileDamage
 import org.bukkit.*
 import org.bukkit.boss.BarColor
 import org.bukkit.boss.BarStyle
 import org.bukkit.enchantments.Enchantment
 import org.bukkit.entity.Entity
 import org.bukkit.entity.EntityType
+import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.entity.EntityDamageEvent
@@ -21,7 +23,7 @@ import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import org.bukkit.util.Vector
 
-object Matan : MachangWars.Ability() {
+object Matan : Ability() {
     private var ammo = mutableMapOf<Player, Int>()
     private var reload = mutableMapOf<Player, Int>()
     private var reloadSchedulerID = mutableMapOf<Player, Int>()
@@ -129,12 +131,12 @@ object Matan : MachangWars.Ability() {
                 val target = raytrace.hitEntity as Player
                 if (player.health <= 4) {
                     if (target.health <= 6) target.damage(1234.0, player)
-                    else if (6 < target.health && target.health <= 10) target.projectileDamage((6 + (e.bow?.enchantments?.get(Enchantment.ARROW_DAMAGE) ?: 0).toDouble() / 2))
-                    else if (10 < target.health && target.health <= 15) target.projectileDamage((4 + (e.bow?.enchantments?.get(Enchantment.ARROW_DAMAGE) ?: 0).toDouble() / 2))
-                    else target.projectileDamage((3 + (e.bow?.enchantments?.get(Enchantment.ARROW_DAMAGE) ?: 0).toDouble() / 2))
+                    else if (6 < target.health && target.health <= 10) (target as LivingEntity).simulateProjectileDamage((6 + (e.bow?.enchantments?.get(Enchantment.ARROW_DAMAGE) ?: 0).toFloat() / 2), player)
+                    else if (10 < target.health && target.health <= 15) (target as LivingEntity).simulateProjectileDamage((4 + (e.bow?.enchantments?.get(Enchantment.ARROW_DAMAGE) ?: 0).toFloat() / 2), player)
+                    else (target as LivingEntity).simulateProjectileDamage((3 + (e.bow?.enchantments?.get(Enchantment.ARROW_DAMAGE) ?: 0).toFloat() / 2), player)
                     player.setAmmo(1, player.health)
                 } else {
-                    target.projectileDamage((3 + (e.bow?.enchantments?.get(Enchantment.ARROW_DAMAGE) ?: 0).toDouble() / 2))
+                    (target as LivingEntity).simulateProjectileDamage((3 + (e.bow?.enchantments?.get(Enchantment.ARROW_DAMAGE) ?: 0).toFloat() / 2), player)
                 }
                 player.playSound(player.location, org.bukkit.Sound.ENTITY_ARROW_HIT_PLAYER, 1f, 1f)
             }

@@ -1,6 +1,6 @@
 package com.github.jhhan611.ability.abilities
 
-import com.github.jhhan611.ability.MachangWars
+import com.github.jhhan611.ability.Ability
 import com.github.jhhan611.ability.plugin
 import org.bukkit.Color
 import org.bukkit.Material
@@ -14,7 +14,7 @@ import org.bukkit.inventory.ItemStack
 import org.bukkit.util.Vector
 import kotlin.random.Random
 
-object LuckyGame : MachangWars.Ability() {
+object LuckyGame : Ability() { // 보류
     private var isLuckyCoins = mutableSetOf<Player>()
     private var isSkillUnAbles = mutableSetOf<Player>()
     private var LuckyCoinCoolTime = mutableMapOf<Player, Long>()

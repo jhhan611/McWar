@@ -1,4 +1,5 @@
 import net.kyori.adventure.text.Component
+import net.minecraft.world.entity.EntityTypes
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -44,3 +45,4 @@ class DeathListener: Listener {
         e.deathMessage(Component.text(inflict.deathMessage))
     }
 }
+

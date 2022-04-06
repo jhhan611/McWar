@@ -1,6 +1,6 @@
 package com.github.jhhan611.ability.abilities
 
-import com.github.jhhan611.ability.MachangWars
+import com.github.jhhan611.ability.Ability
 import com.github.jhhan611.ability.plugin
 import org.bukkit.Particle
 import org.bukkit.Sound
@@ -9,7 +9,7 @@ import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 
-object Combo : MachangWars.Ability() {
+object Combo : Ability() {
 
     @EventHandler
     fun onPlayerDamage(e: EntityDamageByEntityEvent) {
@@ -26,6 +26,6 @@ object Combo : MachangWars.Ability() {
             victim.damage(e.damage * 0.4f)
             victim.world.playSound(victim.location, Sound.ENTITY_PLAYER_ATTACK_CRIT, 1f, 1f)
             victim.world.spawnParticle(Particle.CRIT, victim.eyeLocation, 3, 0.1, 0.1, 0.1, 1)
-        }, 3)
+        }, 7)
     }
 }
