@@ -1,6 +1,6 @@
 package com.github.jhhan611.ability.abilities
 
-import com.github.jhhan611.ability.Ability
+import com.github.jhhan611.ability.manager.Ability
 import org.bukkit.entity.Player
 import org.bukkit.entity.Projectile
 import org.bukkit.event.EventHandler

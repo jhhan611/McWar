@@ -1,6 +1,6 @@
 package com.github.jhhan611.ability.abilities
 
-import com.github.jhhan611.ability.Ability
+import com.github.jhhan611.ability.manager.Ability
 import com.github.jhhan611.ability.plugin
 import org.bukkit.Color
 import org.bukkit.Material
@@ -11,6 +11,7 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.ItemStack
+import org.bukkit.scheduler.BukkitRunnable
 import org.bukkit.util.Vector
 import kotlin.random.Random
 
@@ -37,7 +38,12 @@ object LuckyGame : Ability() { // 보류
 
         if (Random.nextDouble() < 0.05f * (if (isLuckyCoins.contains(player)) 6f else 1f)) {
             victim.health = 0.0
-            victim.world.spawnParticle(Particle.BLOCK_CRACK, victim.eyeLocation, 10, Material.GOLD_BLOCK.createBlockData())
+            victim.world.spawnParticle(
+                Particle.BLOCK_CRACK,
+                victim.eyeLocation,
+                10,
+                Material.GOLD_BLOCK.createBlockData()
+            )
             isLuckyCoins.remove(player)
             return
         }
@@ -59,17 +65,23 @@ object LuckyGame : Ability() { // 보류
         if (System.currentTimeMillis() - LuckyCoinCoolTime.getOrDefault(e.player, 0L) < 2000) return
 
         isLuckyCoins.add(e.player)
-        LuckyCoinCoolTime.put(e.player, System.currentTimeMillis())
+        LuckyCoinCoolTime[e.player] = System.currentTimeMillis()
 
-        var taskID = 0
-        taskID = plugin!!.server.scheduler.scheduleSyncRepeatingTask(plugin!!, {
-            if (!isLuckyCoins.contains(e.player)) {
-                plugin!!.server.scheduler.cancelTask(taskID)
-                return@scheduleSyncRepeatingTask
+        object : BukkitRunnable() {
+            override fun run() {
+                if (!isLuckyCoins.contains(e.player)) return cancel()
+
+                val dustTransition = Particle.DustTransition(Color.YELLOW, Color.YELLOW, 1f)
+                e.player.world.spawnParticle(
+                    Particle.DUST_COLOR_TRANSITION,
+                    e.player.eyeLocation.add(Vector(0, 1, 0)),
+                    3,
+                    0.2,
+                    0.2,
+                    0.2,
+                    dustTransition
+                )
             }
-
-            val dustTransition = Particle.DustTransition(Color.YELLOW, Color.YELLOW, 1f)
-            e.player.world.spawnParticle(Particle.DUST_COLOR_TRANSITION, e.player.eyeLocation.add(Vector(0, 1, 0)), 3, 0.2, 0.2, 0.2, dustTransition)
-        }, 0, 1)
+        }.runTaskTimer(plugin!!, 0, 1)
     }
 }

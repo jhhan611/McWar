@@ -1,5 +1,6 @@
-package com.github.jhhan611.ability
+package com.github.jhhan611.ability.manager
 
+import com.github.jhhan611.ability.plugin
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.Listener

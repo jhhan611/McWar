@@ -1,6 +1,7 @@
-package com.github.jhhan611.ability
+package com.github.jhhan611.ability.utils
 
 import com.mojang.datafixers.util.Pair
+import net.minecraft.network.protocol.game.PacketPlayOutAnimation
 import net.minecraft.network.protocol.game.PacketPlayOutEntityEquipment
 import net.minecraft.world.damagesource.DamageSource
 import net.minecraft.world.damagesource.EntityDamageSource
@@ -15,14 +16,12 @@ import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
 import org.bukkit.entity.Projectile
 
-//!(Hanwoo is Pungsung)
-
 /**
  * Deals the given amount of damage to this entity.
  *
  * @param damage Amount of damage to deal
  */
-fun LivingEntity.genericDamage(damage: Float) {
+fun Entity.genericDamage(damage: Float) {
     val nmsEntity = (this as CraftEntity).handle
     nmsEntity.damageEntity(DamageSource.n, damage)
 }
@@ -33,7 +32,7 @@ fun LivingEntity.genericDamage(damage: Float) {
  * @param damage Amount of damage to deal
  * @param attacker Entity which to attribute this damage from
  */
-fun LivingEntity.mobDamage(damage: Float, attacker: LivingEntity) {
+fun Entity.mobDamage(damage: Float, attacker: LivingEntity) {
     val nmsEntity = (this as CraftEntity).handle
     val nmsLiving = (attacker as CraftLivingEntity).handle
     nmsEntity.damageEntity(DamageSource.mobAttack(nmsLiving), damage)
@@ -45,7 +44,7 @@ fun LivingEntity.mobDamage(damage: Float, attacker: LivingEntity) {
  * @param damage Amount of damage to deal
  * @param attacker Player which to attribute this damage from
  */
-fun LivingEntity.playerDamage(damage: Float, attacker: Player) {
+fun Entity.playerDamage(damage: Float, attacker: Player) {
     val nmsEntity = (this as CraftEntity).handle
     val nmsPlayer = (attacker as CraftPlayer).handle
     nmsEntity.damageEntity(DamageSource.playerAttack(nmsPlayer), damage)
@@ -58,7 +57,7 @@ fun LivingEntity.playerDamage(damage: Float, attacker: Player) {
  * @param projectile Projectile which to attribute this damage from
  * @param attacker Entity which to attribute this damage from, can be null
  */
-fun LivingEntity.projectileDamage(damage: Float, projectile: Projectile, attacker: Entity?) {
+fun Entity.projectileDamage(damage: Float, projectile: Projectile, attacker: Entity?) {
     val nmsEntity = (this as CraftEntity).handle
     val nmsProjectile = (projectile as CraftEntity).handle
     val nmsAttacker = (attacker as CraftEntity?)?.handle
@@ -71,7 +70,7 @@ fun LivingEntity.projectileDamage(damage: Float, projectile: Projectile, attacke
  * @param damage Amount of damage to deal
  * @param attacker Entity which to attribute this damage from
  */
-fun LivingEntity.simulateProjectileDamage(damage: Float, attacker: LivingEntity) {
+fun Entity.simulateProjectileDamage(damage: Float, attacker: LivingEntity) {
     val nmsEntity = (this as CraftEntity).handle
     val nmsAttacker = (attacker as CraftLivingEntity).handle
     nmsEntity.damageEntity(EntityDamageSource("arrow", nmsAttacker).c(), damage)
@@ -80,7 +79,7 @@ fun LivingEntity.simulateProjectileDamage(damage: Float, attacker: LivingEntity)
 /**
  * Plays the totem animation for the specified entity and nearby players.
  */
-fun LivingEntity.animateTotem() {
+fun Entity.animateTotem() {
     val nmsEntity = (this as CraftLivingEntity).handle
     nmsEntity.t.broadcastEntityEffect(nmsEntity, 35)
 }
@@ -117,4 +116,17 @@ fun LivingEntity.showArmorFor(player: Player) {
         if (!item.isEmpty) list.add(Pair.of(element, item.cloneItemStack()))
     }
     nmsPlayer.b.sendPacket(PacketPlayOutEntityEquipment(entityId, list))
+}
+
+/**
+ * Shows the crit particle to the entity
+ *
+ * @param magic Particle's type
+ */
+fun Entity.critEffect(magic: Boolean) {
+    val nmsEntity = (this as CraftEntity).handle
+    nmsEntity.world.minecraftWorld.chunkProvider.broadcast(
+        nmsEntity,
+        PacketPlayOutAnimation(nmsEntity, if (magic) 5 else 4)
+    )
 }

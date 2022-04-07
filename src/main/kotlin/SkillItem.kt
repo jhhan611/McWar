@@ -13,14 +13,14 @@ import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
 import org.bukkit.plugin.Plugin
 import org.bukkit.plugin.java.JavaPlugin
+import org.bukkit.scheduler.BukkitRunnable
 import java.util.*
 
 object Plugin : JavaPlugin() {}
 
-class SkillItem(private val skillType: SkillType, material : Material, private val cooldown : Int) : ItemStack(material) {
+class SkillItem(private val skillType: SkillType, material: Material, private val cooldown: Int) : ItemStack(material) {
     private val currentCooldownKey = NamespacedKey(Plugin, "currentCooldown")
     private val cooldownKey = NamespacedKey(Plugin, "cooldown")
-    var cooldownSchedulerID = 0
 
     init {
         this.apply {
@@ -32,21 +32,31 @@ class SkillItem(private val skillType: SkillType, material : Material, private v
         }
 
         val plugin = Bukkit.getPluginManager().getPlugin("plugin name")
-        cooldownSchedulerID = plugin!!.server.scheduler.scheduleSyncRepeatingTask(Plugin, {
-            try {
-                var currentCooldown = this.itemMeta.persistentDataContainer.get(currentCooldownKey, PersistentDataType.INTEGER)!!
-                if(currentCooldown > 0) {
-                    currentCooldown--
+
+        val item = this
+
+        object : BukkitRunnable() {
+            override fun run() {
+                try {
+                    var currentCooldown =
+                        item.itemMeta.persistentDataContainer.get(currentCooldownKey, PersistentDataType.INTEGER)!!
+                    if (currentCooldown > 0) {
+                        currentCooldown--
+                    }
+                    item.itemMeta.persistentDataContainer.set(
+                        currentCooldownKey,
+                        PersistentDataType.INTEGER,
+                        currentCooldown
+                    )
+                } catch (ex: Exception) {
+                    cancel()
                 }
-                this.itemMeta.persistentDataContainer.set(currentCooldownKey, PersistentDataType.INTEGER, currentCooldown)
-            } catch (ex: Exception) {
-                plugin.server.scheduler.cancelTask(cooldownSchedulerID!!)
             }
-        }, 0, 20)
+        }.runTaskTimer(plugin!!, 0, 20)
     }
 }
 
-class SkillUseListener: Listener {
+class SkillUseListener : Listener {
     @EventHandler
     fun onDeath(e: PlayerInteractEvent) {
         val cooldownKey = NamespacedKey(Plugin, "cooldown")
@@ -59,9 +69,13 @@ class SkillUseListener: Listener {
 
         val cooldown = container.get(currentCooldownKey, PersistentDataType.INTEGER)!!
 
-        if(cooldown == 0) {
+        if (cooldown == 0) {
             // use skill
-            container.set(currentCooldownKey, PersistentDataType.INTEGER, container.get(cooldownKey, PersistentDataType.INTEGER)!!)
+            container.set(
+                currentCooldownKey,
+                PersistentDataType.INTEGER,
+                container.get(cooldownKey, PersistentDataType.INTEGER)!!
+            )
         } else if (cooldown > 0) {
             e.player.sendMessage("talmo cant use skill z")
         }

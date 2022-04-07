@@ -1,9 +1,9 @@
-package com.github.jhhan611.ability
+package com.github.jhhan611.ability.manager
 
 import org.bukkit.entity.Player
 
-abstract class Trigger(val name: String, val cooldown: Int) {
-    var playerCooldown = mutableMapOf<Player, Int>()
+abstract class Trigger(val name: String, private val cooldown: Int) {
+    private var playerCooldown = mutableMapOf<Player, Int>()
 
     fun getCooldown(player: Player) : Int? {
         return playerCooldown[player]
