@@ -18,7 +18,6 @@ repositories {
 dependencies {
     implementation(kotlin("stdlib"))
     compileOnly("dev.jorel.CommandAPI:commandapi-core:6.4.0")
-    //implementation("io.github.monun:kommand-api:2.6.6")
     compileOnly("io.papermc.paper:paper:1.17.1-R0.1-SNAPSHOT")
 }
 
@@ -31,7 +30,7 @@ tasks {
         archiveClassifier.set("")
         archiveBaseName.set("MachangWars")
         archiveVersion.set("")
-        //archiveFileName.set("C:\\path\\plugins\\MachangWars.jar") //output location
+        //archiveFileName.set("C:\\Users\\Hanwoo\\Documents\\Server\\Sus\\ServerData\\plugins\\MachangWars.jar") //output location
     }
     withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
         kotlinOptions {

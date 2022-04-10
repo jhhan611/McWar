@@ -5,6 +5,7 @@ import net.minecraft.network.protocol.game.PacketPlayOutAnimation
 import net.minecraft.network.protocol.game.PacketPlayOutEntityEquipment
 import net.minecraft.world.damagesource.DamageSource
 import net.minecraft.world.damagesource.EntityDamageSource
+import net.minecraft.world.entity.EntityLiving
 import net.minecraft.world.entity.EnumItemSlot
 import net.minecraft.world.item.Items
 import net.minecraft.world.level.IMaterial
@@ -74,6 +75,71 @@ fun Entity.simulateProjectileDamage(damage: Float, attacker: LivingEntity) {
     val nmsEntity = (this as CraftEntity).handle
     val nmsAttacker = (attacker as CraftLivingEntity).handle
     nmsEntity.damageEntity(EntityDamageSource("arrow", nmsAttacker).c(), damage)
+}
+
+/**
+ * Deals the given amount of damage to this entity, from a specified player.
+ * Ignores armor or status effects
+ *
+ * @param damage Amount of damage to deal
+ * @param attacker Player which to attribute this damage from
+ */
+fun Entity.truePlayerDamage(damage: Float, attacker: Player) {
+    val nmsEntity = (this as CraftEntity).handle
+    val nmsPlayer = (attacker as CraftPlayer).handle
+    val damageSource = DamageSource.playerAttack(nmsPlayer)
+    damageSource.javaClass.superclass.getDeclaredMethod("setIgnoreArmor").apply {
+        isAccessible = true
+        invoke(damageSource)
+    }
+    damageSource.javaClass.superclass.getDeclaredMethod("setIgnoresInvulnerability").apply {
+        isAccessible = true
+        invoke(damageSource)
+    }
+    nmsEntity.damageEntity(damageSource, damage)
+}
+
+/**
+ * Deals the given amount of damage to this entity, from a specified source.
+ *
+ * @param damage Amount of damage to deal
+ * @param attacker Entity which to attribute this damage from
+ */
+fun Entity.trueProjectileDamage(damage: Float, attacker: LivingEntity) {
+    val nmsEntity = (this as CraftEntity).handle
+    val nmsAttacker = (attacker as CraftLivingEntity).handle
+    val damageSource = EntityDamageSource("arrow", nmsAttacker).c()
+    damageSource.javaClass.superclass.getDeclaredMethod("setIgnoreArmor").apply {
+        isAccessible = true
+        invoke(damageSource)
+    }
+    damageSource.javaClass.superclass.getDeclaredMethod("setIgnoresInvulnerability").apply {
+        isAccessible = true
+        invoke(damageSource)
+    }
+    nmsEntity.damageEntity(damageSource, damage)
+}
+
+/**
+ * Deals the given amount of damage to this entity, from a specified entity.
+ * Ignores armor or status effects
+ *
+ * @param damage Amount of damage to deal
+ * @param attacker Entity which to attribute this damage from
+ */
+fun Entity.trueMobDamage(damage: Float, attacker: LivingEntity) { //TODO
+    val nmsEntity = (this as CraftEntity).handle
+    val nmsAttacker = (attacker as CraftLivingEntity).handle
+    val damageSource = DamageSource.mobAttack(nmsAttacker)
+    damageSource.javaClass.superclass.getDeclaredMethod("setIgnoreArmor").apply {
+        isAccessible = true
+        invoke(damageSource)
+    }
+    damageSource.javaClass.superclass.getDeclaredMethod("setIgnoresInvulnerability").apply {
+        isAccessible = true
+        invoke(damageSource)
+    }
+    nmsEntity.damageEntity(damageSource, damage)
 }
 
 /**

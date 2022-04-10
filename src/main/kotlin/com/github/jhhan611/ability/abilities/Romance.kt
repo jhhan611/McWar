@@ -1,35 +1,32 @@
 package com.github.jhhan611.ability.abilities
 
 import com.github.jhhan611.ability.manager.Ability
+import com.github.jhhan611.ability.utils.truePlayerDamage
+import com.github.jhhan611.ability.utils.trueProjectileDamage
+import net.kyori.adventure.text.Component
+import org.bukkit.Bukkit
+import org.bukkit.configuration.file.YamlConfiguration
+import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
 import org.bukkit.entity.Projectile
 import org.bukkit.event.EventHandler
+import org.bukkit.event.EventPriority
 import org.bukkit.event.entity.EntityDamageByEntityEvent
+import org.bukkit.event.entity.EntityDamageEvent
+import java.util.*
 
-object Romance : Ability() { // 완성
-
-    @EventHandler
-    fun onDamaged(e: EntityDamageByEntityEvent) { // 피격
-        val player = e.entity as? Player ?: return
-        if (!player.hasAbility()) return
-        if (e.damager !is Player) {
-            if (e.damager is Projectile) {
-                val projectile = e.damager as Projectile
-                if (projectile.shooter !is Player) return
-            } else return
-        }
-        e.damage = 4.0
-    }
+object Romance : Ability() { // 보류
 
     @EventHandler
-    fun onDamage(e : EntityDamageByEntityEvent) { // 가격
-        if (e.damager is Player) {
-            val player = e.damager as Player
-            if (!player.hasAbility()) return
-        } else if (e.damager is Projectile) {
-            val projectile = e.damager as Projectile
-            if ((projectile.shooter as? Player)?.hasAbility() != true) return
-        }
-        e.damage = 4.0
+    fun onDamage(e: EntityDamageByEntityEvent) {
+//        val entity = e.entity as? Player ?: return
+//        val damager = e.damager as? Player ?: (e.damager as? Projectile ?: return).shooter as? Player ?: return
+//        if (entity.hasAbility() || damager.hasAbility()) {
+//            val newHealth = (entity.health - 4).coerceAtLeast(0.0)
+//            if (newHealth <= 0) {
+//                e.
+//            } else
+//                entity.health = newHealth
+//        }
     }
 }

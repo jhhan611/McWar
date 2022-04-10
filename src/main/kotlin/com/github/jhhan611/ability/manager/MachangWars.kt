@@ -4,9 +4,9 @@ import com.github.jhhan611.ability.Plugin
 import com.github.jhhan611.ability.abilities.*
 import com.github.jhhan611.ability.plugin
 import com.github.jhhan611.ability.utils.brighten
+import com.github.jhhan611.ability.utils.toTextColor
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.TextComponent
-import net.kyori.adventure.text.format.TextColor
 import org.apache.commons.lang.WordUtils
 import org.bukkit.*
 import org.bukkit.entity.Player
@@ -30,9 +30,11 @@ object MachangWars {
         MATAN("마탄의 사수", Rank.S, Matan),
         AMOGUS("아모구스", Rank.S, Amogus),
         LUCKY_GAME("운빨망겜", Rank.S, LuckyGame),
-        ROMANCE("낭만", Rank.A, Romance),
+        //ROMANCE("낭만", Rank.A, Romance),
         COMBO("콤보", Rank.A, Combo),
-        CIGAR("시가", Rank.C, Cigar);
+        CIGAR("시가", Rank.C, Cigar),
+        STAR("별", Rank.S, Star),
+        FISHER("낚시꾼", Rank.B, Fisher);
 
         fun getPascalName(): String {
             return WordUtils.capitalize(this.name.lowercase().replace("_", " ")).replace(" ", "")
@@ -73,16 +75,38 @@ object MachangWars {
         abilityType.abilityObject.onDelete(player)
     }
 
+    private fun getRandomRank(): Rank {
+        var totalWeight = 0.0
+        for (i in Rank.values())
+            totalWeight += i.chance.toDouble()
+        var i = 0
+        run {
+            var r = Math.random() * totalWeight
+            while (i < Rank.values().size - 1) {
+                r -= Rank.values()[i].chance.toDouble()
+                if (r <= 0.0) break
+                ++i
+            }
+        }
+        return Rank.values()[i]
+    }
+
+    fun getRandomAbility(): AbilityType {
+        var rank = getRandomRank()
+        while (AbilityType.values().none { it.rank == rank }) rank = getRandomRank()
+        return AbilityType.values().filter { it.rank == rank }.random()
+    }
+
     fun startGame() { // 게임 시작
         val players = Bukkit.getPluginManager().getPlugin("MachangWars")!!.server.onlinePlayers
         players.forEach {
-            val ability = AbilityType.values().toList().shuffled().first()
+            val ability = getRandomAbility()
             addAbility(it, ability)
             it.sendMessage("${ChatColor.GREEN}게임이 시작되었습니다!")
 
             val component = Component.text("${ChatColor.YELLOW}당신의 능력은 ")
                 .append(ability.rank.getPrefixComponent().append(Component.text(" ")))
-                .append(Component.text(ability.abilityName).color(ability.rank.color.brighten(0.3)))
+                .append(Component.text(ability.abilityName).color(ability.rank.color.toTextColor().brighten(0.3)))
                 .append(Component.text(" ${ChatColor.YELLOW}입니다."))
             it.sendMessage(component)
         }
@@ -136,22 +160,22 @@ object MachangWars {
     }
 }
 
-enum class Rank(val color: TextColor, val chatColor: ChatColor) {
-    Sy(TextColor.color(0xAA0000), ChatColor.DARK_RED),
-    M(TextColor.color(0x55FF55), ChatColor.GREEN),
-    L(TextColor.color(0xFFFF55), ChatColor.YELLOW),
-    S(TextColor.color(0xFF55FF), ChatColor.LIGHT_PURPLE),
-    A(TextColor.color(0x00AA00), ChatColor.DARK_GREEN),
-    B(TextColor.color(0x00AAAA), ChatColor.DARK_AQUA),
-    C(TextColor.color(0x555555), ChatColor.DARK_GRAY);
+enum class Rank(val color: ChatColor, val chance: Number) {
+    Sy(ChatColor.DARK_RED, 0),
+    M(ChatColor.GREEN, 1),
+    L(ChatColor.YELLOW, 1.1),
+    S(ChatColor.LIGHT_PURPLE, 1.2),
+    A(ChatColor.DARK_GREEN, 1.3),
+    B(ChatColor.DARK_AQUA, 1.4),
+    C(ChatColor.DARK_GRAY, 1.5);
 
     fun getPrefixComponent(): TextComponent {
         return Component.text("${ChatColor.GRAY}[")
-            .append(Component.text(this.name).color(this.color))
+            .append(Component.text(this.name).color(this.color.toTextColor()))
             .append(Component.text("${ChatColor.GRAY}]"))
     }
 
     fun getPrefixString(): String {
-        return "${ChatColor.GRAY}[${this.chatColor}${this.name}${ChatColor.GRAY}]"
+        return "${ChatColor.GRAY}[${this.color}${this.name}${ChatColor.GRAY}]"
     }
 }

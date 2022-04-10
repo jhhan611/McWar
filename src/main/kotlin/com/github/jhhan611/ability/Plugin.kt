@@ -1,14 +1,20 @@
 package com.github.jhhan611.ability
 
+import com.github.jhhan611.ability.description.getDescription
 import com.github.jhhan611.ability.manager.MachangWars
 import com.github.jhhan611.ability.manager.MachangWars.getAbilities
-import com.github.jhhan611.ability.utils.getDescription
-import dev.jorel.commandapi.*
+import com.github.jhhan611.ability.manager.MachangWars.getRandomAbility
+import dev.jorel.commandapi.CommandAPICommand
+import dev.jorel.commandapi.CommandPermission
+import dev.jorel.commandapi.StringTooltip
 import dev.jorel.commandapi.arguments.Argument
 import dev.jorel.commandapi.arguments.PlayerArgument
 import dev.jorel.commandapi.arguments.StringArgument
+import dev.jorel.commandapi.executors.CommandExecutor
 import dev.jorel.commandapi.executors.PlayerCommandExecutor
 import org.bukkit.ChatColor
+import org.bukkit.Material
+import org.bukkit.block.BlockFace
 import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
 
@@ -47,7 +53,7 @@ class Plugin : JavaPlugin() {
                         .map {
                             StringTooltip.of(
                                 it.getPascalName(),
-                                it.rank.getPrefixString() + " " + it.rank.chatColor.toString() + it.abilityName
+                                it.rank.getPrefixString() + " " + it.rank.color.toString() + it.abilityName
                             )
                         }
                         .toTypedArray()
@@ -57,9 +63,20 @@ class Plugin : JavaPlugin() {
         val abilities = mutableMapOf<String, MachangWars.AbilityType>()
         MachangWars.AbilityType.values().forEach { abilities[it.getPascalName().lowercase()] = it }
 
+        CommandAPICommand("ability")
+            .withPermission(CommandPermission.OP)
+            .withArguments(PlayerArgument("player"))
+            .withArguments(StringArgument("add|list|remove").replaceSuggestions { arrayOf("add", "list", "remove") })
+            .withArguments(arguments)
+            .executes(CommandExecutor { sender, args ->
+
+            })
+            .register()
+
+
         CommandAPICommand("addAbility")
             .withArguments(arguments)
-            .executesPlayer(PlayerCommandExecutor { player: Player, args: Array<Any?> ->
+            .executesPlayer(PlayerCommandExecutor { player, args ->
                 val ability = args[0] as String?
                 MachangWars.addAbility(
                     player,
@@ -70,7 +87,7 @@ class Plugin : JavaPlugin() {
 
         CommandAPICommand("removeAbility")
             .withArguments(arguments)
-            .executesPlayer(PlayerCommandExecutor { player: Player, args: Array<Any?> ->
+            .executesPlayer(PlayerCommandExecutor { player, args ->
                 val ability = args[0] as String?
                 MachangWars.removeAbility(
                     player,
@@ -101,6 +118,12 @@ class Plugin : JavaPlugin() {
             .executesPlayer(PlayerCommandExecutor { player: Player, args: Array<Any?> ->
                 val ability = args[0] as String?
                 player.sendMessage(abilities[ability!!.lowercase()]?.getDescription() ?: return@PlayerCommandExecutor)
+            })
+            .register()
+
+        CommandAPICommand("justtestdontmindthiscommand")
+            .executesPlayer(PlayerCommandExecutor { player: Player, args: Array<Any?> ->
+                player.sendMessage(getRandomAbility().getPascalName())
             })
             .register()
     }

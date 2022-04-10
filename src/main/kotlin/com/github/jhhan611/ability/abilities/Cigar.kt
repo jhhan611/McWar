@@ -8,11 +8,7 @@ import org.bukkit.inventory.ItemStack
 
 object Cigar : Ability() {
     override fun onAdd(player: Player) {
-        player.inventory.apply {
-            player.inventory.apply {
-                addItem(ItemStack(Material.IRON_INGOT))
-            }
-        }
+        player.inventory.addItem(ItemStack(Material.IRON_INGOT))
     }
 
     override fun onRightClick(item: ItemStack?, e: PlayerInteractEvent) {
