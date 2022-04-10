@@ -16,15 +16,20 @@ import org.bukkit.inventory.ItemStack
 import org.bukkit.util.Vector
 import kotlin.random.Random
 
-object Fisher : Ability() {
+object Fisher : Ability() { // 미완성
     private var isGroggy = mutableListOf<Player>()
     private var lastCaughtCount = mutableMapOf<Player, Int>()
     private var lastCaughtPlayer = mutableMapOf<Player, Player>()
+
+    override fun onLoad() {
+        addTrigger(Groggy)
+    }
 
     override fun onAdd(player: Player) {
         var item = ItemStack(Material.FISHING_ROD)
         item.itemMeta.isUnbreakable = true
         player.inventory.addItem(item)
+        player.inventory.addItem(ItemStack(Material.IRON_INGOT))
     }
 
     @EventHandler
@@ -70,7 +75,7 @@ object Fisher : Ability() {
         if (item.type == Material.IRON_INGOT) {
 
         } else if (swords.contains(item.type)) {
-            Fisher.Groggy.useSkill(e.player)
+            Groggy.useSkill(e.player)
         }
     }
 }

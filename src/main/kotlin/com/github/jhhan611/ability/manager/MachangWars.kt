@@ -34,7 +34,9 @@ object MachangWars {
         COMBO("콤보", Rank.A, Combo),
         CIGAR("시가", Rank.C, Cigar),
         STAR("별", Rank.S, Star),
-        FISHER("낚시꾼", Rank.B, Fisher);
+        FISHER("낚시꾼", Rank.B, Fisher),
+        PAINTER("페인터", Rank.A, Painter),
+        ASSASSIN("암살자", Rank.S, Assassin);
 
         fun getPascalName(): String {
             return WordUtils.capitalize(this.name.lowercase().replace("_", " ")).replace(" ", "")
@@ -98,7 +100,7 @@ object MachangWars {
     }
 
     fun startGame() { // 게임 시작
-        val players = Bukkit.getPluginManager().getPlugin("MachangWars")!!.server.onlinePlayers
+        val players = plugin!!.server.onlinePlayers
         players.forEach {
             val ability = getRandomAbility()
             addAbility(it, ability)

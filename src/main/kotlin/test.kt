@@ -45,4 +45,3 @@ class DeathListener: Listener {
         e.deathMessage(Component.text(inflict.deathMessage))
     }
 }
-

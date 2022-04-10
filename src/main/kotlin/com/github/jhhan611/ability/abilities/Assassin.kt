@@ -3,6 +3,7 @@ package com.github.jhhan611.ability.abilities
 import com.github.jhhan611.ability.manager.Ability
 import com.github.jhhan611.ability.manager.Trigger
 import com.github.jhhan611.ability.plugin
+import com.github.jhhan611.ability.utils.airs
 import com.github.jhhan611.ability.utils.swords
 import org.bukkit.Bukkit
 import org.bukkit.Material
@@ -17,6 +18,10 @@ import kotlin.math.PI
 
 object Assassin : Ability() {
     val target = mutableMapOf<Player, Player>()
+
+    override fun onLoad() {
+        addTrigger(DaggerThrow, SwitchTarget)
+    }
 
     override fun onAdd(player: Player) {
         player.inventory.addItem(ItemStack(Material.IRON_INGOT))
@@ -46,17 +51,18 @@ object Assassin : Ability() {
             object : BukkitRunnable() {
                 override fun run() {
                     if (dist == 40) return cancel()
+                    if (!airs.contains(armorStand.location.world.getBlockAt(armorStand.location).type)) return cancel()
                     dist++
                     armorStand.teleport(armorStand.location.add(direction.multiply(0.25)))
 
-                    Bukkit.getOnlinePlayers().forEach {
+                    Bukkit.getOnlinePlayers().filter { it != player }.forEach {
                         if (armorStand.location.distance(it.location) < 1) {
                             hitPlayer = it
                             return cancel()
                         }
                     }
                 }
-            }
+            }.runTaskTimer(plugin!!, 1, 1)
 
             return hitPlayer
         }

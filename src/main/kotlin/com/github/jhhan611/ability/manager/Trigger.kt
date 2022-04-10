@@ -1,6 +1,8 @@
 package com.github.jhhan611.ability.manager
 
 import com.github.jhhan611.ability.plugin
+import net.kyori.adventure.text.format.TextColor
+import org.bukkit.ChatColor
 import org.bukkit.entity.Player
 import org.bukkit.scheduler.BukkitRunnable
 
@@ -12,14 +14,16 @@ import org.bukkit.scheduler.BukkitRunnable
  */
 abstract class Trigger(val name: String, private val cooldown: Int) {
     private var playerCooldown = mutableMapOf<Player, Int>()
+    var color = TextColor.color(0xFFFFFF)
 
     fun startCooldown(player: Player) {
         playerCooldown[player] = cooldown
 
         object : BukkitRunnable() {
             override fun run() {
-                if ((playerCooldown[player] ?: return cancel()) <= 0) return cancel()
                 playerCooldown[player] = playerCooldown[player]!! - 1
+                if ((playerCooldown[player] ?: return cancel()) <= 0) return cancel()
+
             }
         }.runTaskTimer(plugin!!, 20, 20)
     }
@@ -29,6 +33,7 @@ abstract class Trigger(val name: String, private val cooldown: Int) {
     }
 
     fun useSkill(player: Player) : Boolean {
+        if (playerCooldown[player] == null) playerCooldown[player] = 0
         if ((playerCooldown[player] ?: return false) > 0) return false
         skill(player)
         startCooldown(player)

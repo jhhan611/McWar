@@ -1,6 +1,9 @@
 package com.github.jhhan611.ability.manager
 
+import com.github.jhhan611.ability.description.Skill
 import com.github.jhhan611.ability.plugin
+import com.github.jhhan611.ability.utils.brighten
+import com.github.jhhan611.ability.utils.toTextColor
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.Listener
@@ -9,6 +12,14 @@ import org.bukkit.inventory.ItemStack
 
 abstract class Ability : Listener {
     lateinit var abilityType: MachangWars.AbilityType
+    var triggers = mutableListOf<Trigger>()
+
+    fun addTrigger(vararg trigger: Trigger) {
+        trigger.forEach {
+            triggers.add(it)
+            it.color = this.abilityType.rank.color.toTextColor().brighten(0.3)
+        }
+    }
 
     fun Player.hasAbility() : Boolean { // 플레이어가 오브젝트에 해당하는 능력이 있는기? ex) Matan에서 이 함수를 실행시키면 플레이어가 AbilityType.MATAN을 갖고 있는지 반환함
         if((MachangWars.playerAbility[this] ?: return false).contains(abilityType)) return true

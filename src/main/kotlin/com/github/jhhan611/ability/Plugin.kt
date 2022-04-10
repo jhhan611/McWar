@@ -1,6 +1,7 @@
 package com.github.jhhan611.ability
 
 import com.github.jhhan611.ability.description.getDescription
+import com.github.jhhan611.ability.manager.Actionbar
 import com.github.jhhan611.ability.manager.MachangWars
 import com.github.jhhan611.ability.manager.MachangWars.getAbilities
 import com.github.jhhan611.ability.manager.MachangWars.getRandomAbility
@@ -29,6 +30,7 @@ class Plugin : JavaPlugin() {
     override fun onEnable() {
         MachangWars.loadAbilities(this)
         this.server.pluginManager.registerEvents(MachangWars.MainListener(), this)
+        Actionbar.startActionbar()
 
         CommandAPICommand("mw")
             .withPermission(CommandPermission.OP)

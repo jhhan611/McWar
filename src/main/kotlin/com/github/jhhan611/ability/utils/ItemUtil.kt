@@ -4,13 +4,19 @@ import net.kyori.adventure.text.Component
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
 
-val swords = listOf<Material>(
+val swords = listOf(
     Material.WOODEN_SWORD,
     Material.STONE_SWORD,
     Material.IRON_SWORD,
     Material.GOLDEN_SWORD,
     Material.DIAMOND_SWORD,
     Material.NETHERITE_SWORD
+)
+
+val airs = listOf(
+    Material.AIR,
+    Material.VOID_AIR,
+    Material.CAVE_AIR
 )
 
 fun ItemStack.setDisplayName(s: String) {
