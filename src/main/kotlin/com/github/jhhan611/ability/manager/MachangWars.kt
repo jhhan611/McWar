@@ -36,7 +36,8 @@ object MachangWars {
         STAR("별", Rank.S, Star),
         FISHER("낚시꾼", Rank.B, Fisher),
         PAINTER("페인터", Rank.A, Painter),
-        ASSASSIN("암살자", Rank.S, Assassin);
+        ASSASSIN("암살자", Rank.S, Assassin),
+        KRHANWOO("검열삭제", Rank.M, KrHanwoo);
 
         fun getPascalName(): String {
             return WordUtils.capitalize(this.name.lowercase().replace("_", " ")).replace(" ", "")
