@@ -100,21 +100,6 @@ object MachangWars {
         return AbilityType.values().filter { it.rank == rank }.random()
     }
 
-    fun startGame() { // 게임 시작
-        val players = plugin!!.server.onlinePlayers
-        players.forEach {
-            val ability = getRandomAbility()
-            addAbility(it, ability)
-            it.sendMessage("${ChatColor.GREEN}게임이 시작되었습니다!")
-
-            val component = Component.text("${ChatColor.YELLOW}당신의 능력은 ")
-                .append(ability.rank.getPrefixComponent().append(Component.text(" ")))
-                .append(Component.text(ability.abilityName).color(ability.rank.color.toTextColor().brighten(0.3)))
-                .append(Component.text(" ${ChatColor.YELLOW}입니다."))
-            it.sendMessage(component)
-        }
-    }
-
     fun Player.getAbilities(): MutableSet<AbilityType> { // 플레이어의 능력들 반환, 능력이 없으면 빈 리스트
         playerAbility[this] ?: return mutableSetOf()
         return playerAbility[this]!!

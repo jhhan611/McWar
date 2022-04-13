@@ -1,6 +1,8 @@
 package com.github.jhhan611.ability
 
 import com.github.jhhan611.ability.description.getDescription
+import com.github.jhhan611.ability.game.startGame
+import com.github.jhhan611.ability.game.stopGame
 import com.github.jhhan611.ability.manager.Actionbar
 import com.github.jhhan611.ability.manager.MachangWars
 import com.github.jhhan611.ability.manager.MachangWars.getAbilities
@@ -32,20 +34,20 @@ class Plugin : JavaPlugin() {
         this.server.pluginManager.registerEvents(MachangWars.MainListener(), this)
         Actionbar.startActionbar()
 
-        CommandAPICommand("mw")
-            .withPermission(CommandPermission.OP)
-            .withArguments(StringArgument("command").replaceSuggestions {
-                arrayOf(
-                    "start"
-                )
-            })
-            .executesPlayer(PlayerCommandExecutor { player: Player, args: Array<Any?> ->
-                when (args[0]) {
-                    ("start") -> MachangWars.startGame()
-                    else -> player.sendMessage("${ChatColor.RED}Invalid player")
-                }
-            })
-            .register()
+//        CommandAPICommand("mw")
+//            .withPermission(CommandPermission.OP)
+//            .withArguments(StringArgument("command").replaceSuggestions {
+//                arrayOf(
+//                    "start"
+//                )
+//            })
+//            .executesPlayer(PlayerCommandExecutor { player: Player, args: Array<Any?> ->
+//                when (args[0]) {
+//                    ("start") -> MachangWars.startGame()
+//                    else -> player.sendMessage("${ChatColor.RED}Invalid player")
+//                }
+//            })
+//            .register()
 
         val arguments: MutableList<Argument> = ArrayList()
         arguments.add(
@@ -126,6 +128,18 @@ class Plugin : JavaPlugin() {
         CommandAPICommand("justtestdontmindthiscommand")
             .executesPlayer(PlayerCommandExecutor { player: Player, args: Array<Any?> ->
                 player.sendMessage(getRandomAbility().getPascalName())
+            })
+            .register()
+
+        CommandAPICommand("startcommandtestnevermindthis")
+            .executesPlayer(PlayerCommandExecutor { player: Player, args: Array<Any?> ->
+                if (!startGame()) player.sendMessage("failed to start game")
+            })
+            .register()
+
+        CommandAPICommand("thiscommandwillstopthegame")
+            .executesPlayer(PlayerCommandExecutor { player: Player, args: Array<Any?> ->
+                if (!stopGame()) player.sendMessage("failed to stop game")
             })
             .register()
     }

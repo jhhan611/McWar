@@ -5,6 +5,7 @@ import com.github.jhhan611.ability.abilities.LuckyGame.hasAbility
 import com.github.jhhan611.ability.manager.Ability
 import com.github.jhhan611.ability.manager.Trigger
 import com.github.jhhan611.ability.plugin
+import com.github.jhhan611.ability.utils.isSword
 import com.github.jhhan611.ability.utils.setDisplayName
 import com.github.jhhan611.ability.utils.swords
 import org.bukkit.Material
@@ -74,7 +75,7 @@ object Fisher : Ability() { // 미완성
         if (item == null) return
         if (item.type == Material.IRON_INGOT) {
 
-        } else if (swords.contains(item.type)) {
+        } else if (item.type.isSword) {
             Groggy.useSkill(e.player)
         }
     }

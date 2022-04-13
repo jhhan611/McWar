@@ -9,9 +9,12 @@ import net.kyori.adventure.title.Title
 import net.kyori.adventure.title.TitlePart
 import org.bukkit.Bukkit
 import org.bukkit.ChatColor
+import org.bukkit.entity.Player
 import org.bukkit.scheduler.BukkitRunnable
 
 object Actionbar {
+    val prefix = mutableMapOf<Player, String>()
+
     fun startActionbar() {
         object : BukkitRunnable() {
             override fun run() {
@@ -27,14 +30,14 @@ object Actionbar {
                     }
 
                     val components = result.map { Component.text(it.first).color(it.third).append(Component.text("${ChatColor.DARK_GRAY} : ${ChatColor.WHITE}${it.second}s")) }
-                    val final = Component.text()
+                    val final = Component.text(prefix[p]?.let { it + " ${ChatColor.DARK_AQUA}|| " } ?: "")
                     components.forEachIndexed { ind, c ->
                         if (ind == components.size - 1) final.append(c)
                         else final.append(c).append(Component.text(" | ").color(ChatColor.AQUA.toTextColor()))
                     }
 
 
-                    p.sendActionBar(final.build())
+                    p.sendActionBar(final)
                 }
             }
         }.runTaskTimer(plugin!!, 1, 1)

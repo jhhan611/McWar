@@ -30,7 +30,7 @@ tasks {
         archiveClassifier.set("")
         archiveBaseName.set("MachangWars")
         archiveVersion.set("")
-        //archiveFileName.set("C:\\Users\\Hanwoo\\Documents\\Server\\Sus\\ServerData\\plugins\\MachangWars.jar") //output location
+        archiveFileName.set("C:\\Users\\Hanwoo\\Documents\\Server\\Sus\\ServerData\\plugins\\MachangWars.jar") //output location
     }
     withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
         kotlinOptions {

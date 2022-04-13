@@ -37,7 +37,7 @@ object Painter : Ability() { // 아마 완성
                     val entities = colorZone.location.getNearbyLivingEntities(5.0, 1.0) { it == colorZone.player && it.type == EntityType.PLAYER }
                     if (entities.isEmpty()) continue
                     entities.forEach { it.addPotionEffect(colorZone.type.effect) }
-                } // 여기가 문제인
+                }
 
                 for (sprayZone in sprayZones) {
                     sprayZone.time--

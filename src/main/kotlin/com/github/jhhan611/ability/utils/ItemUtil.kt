@@ -13,16 +13,7 @@ val swords = listOf(
     Material.NETHERITE_SWORD
 )
 
-val airs = listOf(
-    Material.AIR,
-    Material.VOID_AIR,
-    Material.CAVE_AIR
-)
-
-fun ItemStack.setDisplayName(s: String) {
-    this.itemMeta.displayName(Component.text(s))
-}
-
-fun ItemStack.addLore(s: String) {
-    this.itemMeta.lore()?.add(Component.text(s)) ?: this.itemMeta.lore(listOf(Component.text(s)))
-}
+val Material.isSword: Boolean
+    get() {
+        return swords.contains(this)
+    }

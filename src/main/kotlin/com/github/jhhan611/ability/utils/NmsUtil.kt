@@ -5,17 +5,18 @@ import net.minecraft.network.protocol.game.PacketPlayOutAnimation
 import net.minecraft.network.protocol.game.PacketPlayOutEntityEquipment
 import net.minecraft.world.damagesource.DamageSource
 import net.minecraft.world.damagesource.EntityDamageSource
-import net.minecraft.world.entity.EntityLiving
 import net.minecraft.world.entity.EnumItemSlot
+import net.minecraft.world.entity.decoration.EntityArmorStand
 import net.minecraft.world.item.Items
 import net.minecraft.world.level.IMaterial
+import net.minecraft.world.level.World
+import org.bukkit.Location
+import org.bukkit.craftbukkit.v1_17_R1.CraftWorld
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftLivingEntity
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer
-import org.bukkit.entity.Entity
-import org.bukkit.entity.LivingEntity
-import org.bukkit.entity.Player
-import org.bukkit.entity.Projectile
+import org.bukkit.entity.*
+
 
 /**
  * Deals the given amount of damage to this entity.
@@ -195,4 +196,21 @@ fun Entity.critEffect(magic: Boolean) {
         nmsEntity,
         PacketPlayOutAnimation(nmsEntity, if (magic) 5 else 4)
     )
+}
+
+/**
+ * Spawns an Armor Stand with the following options
+ *
+ * @param location Location to spawn the entity
+ * @param invisible Whether to make the Armor Stand invisible
+ * @param marker Whether to set the Armor Stand as marker
+ */
+fun spawnArmorStand(location: Location, invisible: Boolean, marker: Boolean): ArmorStand {
+    val w: World = (location.world as CraftWorld).handle
+    val nmsEntity = EntityArmorStand(w, location.x, location.y, location.z)
+    nmsEntity.setLocation(location.x, location.y, location.z, location.yaw, location.pitch)
+    nmsEntity.isInvisible = invisible
+    nmsEntity.isMarker = marker
+    w.addEntity(nmsEntity)
+    return nmsEntity.bukkitEntity as ArmorStand
 }
